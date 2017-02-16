@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+if [ ! -f /etc/cif/cif.yml ]; then
+    cif-store --token-create-admin /etc/cif/cif.yml
+fi
+if [ ! -f /etc/cif/cif-router.yml ]; then
+    cif-store --token-create-hunter /etc/cif/cif-router.yml
+fi
+if [ ! -f /etc/cif/csirtg-smrt.yml ]; then
+    cif-store --token-create-smrt /etc/cif/csirtg-smrt.yml
+fi
+
+chown -R cif:cif /var/lib/cif
+chown -R cif:cif /etc/cif
+chown -R cif:cif /var/log/cif
+
+/usr/local/bin/supervisord -n
