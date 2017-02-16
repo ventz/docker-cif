@@ -32,12 +32,12 @@ Configuration Data:
 
 ```
 Log Files:
-VOLUME /var/log/cif
+/var/log/cif
 ```
 
 ```
 SQLite DB:
-VOLUME /var/lib/cif
+/var/lib/cif
 ```
 
 # Docker Maintainer:
@@ -48,4 +48,4 @@ Ventz Petkov: ventz@vpetkov.net
 
 Copyright (C) 2017 [the CSIRT Gadgets Foundation](http://csirtgadgets.org)
 
-See: [LICENSE](./LICENSE)
+See: [LICENSE](https://github.com/ventz/docker-cif/blob/master/LICENSE)
