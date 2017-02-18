@@ -8,7 +8,7 @@ VOLUME /etc/cif
 VOLUME /var/log/cif
 VOLUME /var/lib/cif
 
-ENV CIF_VERSION 3.0.0a15
+ENV CIF_VERSION 3.0.0a16
 ENV CIF_RUNTIME_PATH /var/lib/cif
 ENV SUDO_USER root
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,6 +35,9 @@ RUN sed -i "s/- include: firewall.yml//" deployment/ubuntu16/roles/ubuntu16/task
     echo "- name: systemd env file" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
     echo "  template: src=cif.env.j2 dest=/etc/cif.env mode=0660 owner=\"{{ app_user }}\" group=\"{{ app_user }}\" " >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
     echo "  tags: configuration" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
+    echo "" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
+    echo "- name: copy /etc/defaults/cif" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
+    echo "  template: src=defaults.j2 dest=/etc/default/cif mode=0660 owner=\"{{ app_user }}\" group=\"{{ app_user }}\"" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
     # Override for Docker - don't need anything related to systemd/on-startup
     echo "---" > deployment/ubuntu16/localhost.yml; \
     echo "- name: Install bearded-avenger" >> deployment/ubuntu16/localhost.yml; \
@@ -48,7 +51,7 @@ RUN sed -i "s/- include: firewall.yml//" deployment/ubuntu16/roles/ubuntu16/task
     echo "    - { role: ubuntu16, tags: role-ubuntu16 }" >> deployment/ubuntu16/localhost.yml; \
     echo "    - { role: bearded-avenger, tags: role-bearded-avenger }" >> deployment/ubuntu16/localhost.yml; \
     # We can't have a run-state while building container - exit cleanly after build!
-    sed -i "s/echo 'testing connectivity'/exit 0/" deployment/ubuntu16/bootstrap.sh ; \
+    sed -i "s/bash ..\/test.sh/exit 0/" deployment/ubuntu16/bootstrap.sh ; \
     chmod 755 /entrypoint ; \
     cd deployment/ubuntu16 && bash bootstrap.sh ; \
     rm -Rf /tmp/bearded-avenger

@@ -1,5 +1,7 @@
-# Latest Version: 3.0.0a15
+# Latest Version: 3.0.0a16
 CIFv3 Ubuntu 16.04 Docker Container (Bearded Avenger)
+
+https://github.com/csirtgadgets/bearded-avenger/releases
 
 http://csirtgadgets.org/bearded-avenger
 
