@@ -1,12 +1,8 @@
 FROM ubuntu:16.04
 LABEL developer="Wes Young <wes@csirtgadgets.org>"
-LABEL docker_maintainer="Ventz Petkov <ventz@vpetkov.net"
+LABEL docker_maintainer="Ventz Petkov <ventz@vpetkov.net>"
 
 EXPOSE 443 5000
-
-VOLUME /etc/cif
-VOLUME /var/log/cif
-VOLUME /var/lib/cif
 
 ENV CIF_VERSION 3.0.0a16
 ENV CIF_RUNTIME_PATH /var/lib/cif
@@ -20,7 +16,8 @@ RUN apt-get update && apt-get install -y git sudo ; \
     cd /tmp && git clone https://github.com/csirtgadgets/bearded-avenger.git
 
 WORKDIR /tmp/bearded-avenger
-RUN sed -i "s/- include: firewall.yml//" deployment/ubuntu16/roles/ubuntu16/tasks/main.yml ; \
+RUN git checkout tags/$CIF_VERSION ; \
+    sed -i "s/- include: firewall.yml//" deployment/ubuntu16/roles/ubuntu16/tasks/main.yml ; \
     sed -i "s/  tags: firewall//" deployment/ubuntu16/roles/ubuntu16/tasks/main.yml ; \
     mkdir -p /etc/resolvconf/resolv.conf.d ; \
     # Override for Docker - don't need anything related to systemd; \
@@ -52,9 +49,19 @@ RUN sed -i "s/- include: firewall.yml//" deployment/ubuntu16/roles/ubuntu16/task
     echo "    - { role: bearded-avenger, tags: role-bearded-avenger }" >> deployment/ubuntu16/localhost.yml; \
     # We can't have a run-state while building container - exit cleanly after build!
     sed -i "s/bash ..\/test.sh/exit 0/" deployment/ubuntu16/bootstrap.sh ; \
+    cp -f deployment/test.sh /root/test.sh ; \
+    chmod 755 /root/test.sh ; \
     chmod 755 /entrypoint ; \
     cd deployment/ubuntu16 && bash bootstrap.sh ; \
-    rm -Rf /tmp/bearded-avenger
+    rm -Rf ../../../bearded-avenger
 
-WORKDIR /root
+
+# This has to be last/post volume dir work.
+# See NOTE at: https://docs.docker.com/engine/reference/builder/#volume
+VOLUME /etc/cif
+VOLUME /var/log/cif
+VOLUME /var/lib/cif
+
+USER cif
+WORKDIR /home/cif
 ENTRYPOINT ["/entrypoint", "-n"]

@@ -24,6 +24,11 @@ Once you have a shell, run:
 cif --config /etc/cif/cif.yml -p
 ```
 
+For a full suite of tests, you can also run:
+```
+/root/test.sh
+```
+
 
 
 # Docker Volumes/Overrides
@@ -44,7 +49,7 @@ SQLite DB:
 
 # Docker Maintainer:
 
-Ventz Petkov: ventz@vpetkov.net
+Ventz Petkov <ventz@vpetkov.net>
 
 # COPYRIGHT AND LICENSE
 
