@@ -4,7 +4,7 @@ LABEL docker_maintainer="Ventz Petkov <ventz@vpetkov.net>"
 
 EXPOSE 443 5000
 
-ENV CIF_VERSION 3.0.0a16
+ENV CIF_VERSION 3.0.0a17
 ENV CIF_RUNTIME_PATH /var/lib/cif
 ENV SUDO_USER root
 ENV DEBIAN_FRONTEND=noninteractive
@@ -12,7 +12,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 COPY supervisord.conf /usr/local/etc/supervisord.conf
 COPY entrypoint /
 
-RUN apt-get update && apt-get install -y git sudo ; \
+RUN echo "resolvconf resolvconf/linkify-resolvconf boolean false" | debconf-set-selections
+
+RUN apt-get update && apt-get install -y git sudo resolvconf ; \
     cd /tmp && git clone https://github.com/csirtgadgets/bearded-avenger.git
 
 WORKDIR /tmp/bearded-avenger
@@ -50,6 +52,8 @@ RUN git checkout tags/$CIF_VERSION ; \
     # We can't have a run-state while building container - exit cleanly after build!
     sed -i "s/bash ..\/test.sh/exit 0/" deployment/ubuntu16/bootstrap.sh ; \
     cp -f deployment/test.sh /root/test.sh ; \
+    ln -s /home/cif/.cif.yml /root/.cif.yml ; \
+    ln -s /home/cif/.cifrc /root/.cifrc ; \
     chmod 755 /root/test.sh ; \
     chmod 755 /entrypoint ; \
     cd deployment/ubuntu16 && bash bootstrap.sh ; \
@@ -62,6 +66,6 @@ VOLUME /etc/cif
 VOLUME /var/log/cif
 VOLUME /var/lib/cif
 
-USER cif
 WORKDIR /home/cif
+
 ENTRYPOINT ["/entrypoint", "-n"]

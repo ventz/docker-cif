@@ -1,4 +1,4 @@
-# Latest Version: 3.0.0a16
+# Latest Version: 3.0.0a17
 CIFv3 Ubuntu 16.04 Docker Container (Bearded Avenger)
 
 https://github.com/csirtgadgets/bearded-avenger/releases
@@ -19,10 +19,17 @@ docker exec -it $C /bin/bash
 ```
 
 # Test Setup
-Once you have a shell, run:
+Once you have a shell, become the cif user:
 ```
-cif --config /etc/cif/cif.yml -p
+# su cif
 ```
+
+and do a sanity check to verify that everything works:
+```
+$ cif -p
+```
+
+You can do this as "root" too, but it's not recommended.
 
 For a full suite of tests, you can also run:
 ```
