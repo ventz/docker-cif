@@ -1,9 +1,9 @@
-# Latest Version: 3.0.0a17
+# Latest Version: 3.0.0a18, tag: 3.0.0a1 (new deploymentkit)
 CIFv3 Ubuntu 16.04 Docker Container (Bearded Avenger)
 
-https://github.com/csirtgadgets/bearded-avenger/releases
+https://github.com/csirtgadgets/bearded-avenger-deploymentkit/wiki
 
-http://csirtgadgets.org/bearded-avenger
+https://github.com/csirtgadgets/bearded-avenger-deploymentkit/releases
 
 # How to run CIFv3 Docker Container?
 ```

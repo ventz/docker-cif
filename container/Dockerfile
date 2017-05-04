@@ -4,7 +4,7 @@ LABEL docker_maintainer="Ventz Petkov <ventz@vpetkov.net>"
 
 EXPOSE 443 5000
 
-ENV CIF_VERSION 3.0.0a17
+ENV CIF_VERSION 3.0.0a1
 ENV CIF_RUNTIME_PATH /var/lib/cif
 ENV SUDO_USER root
 ENV DEBIAN_FRONTEND=noninteractive
@@ -15,49 +15,38 @@ COPY entrypoint /
 RUN echo "resolvconf resolvconf/linkify-resolvconf boolean false" | debconf-set-selections
 
 RUN apt-get update && apt-get install -y git sudo resolvconf ; \
-    cd /tmp && git clone https://github.com/csirtgadgets/bearded-avenger.git
+    cd /tmp && git clone https://github.com/csirtgadgets/bearded-avenger-deploymentkit
 
-WORKDIR /tmp/bearded-avenger
+WORKDIR /tmp/bearded-avenger-deploymentkit
+# Override for Docker - don't need anything related to systemd; \
 RUN git checkout tags/$CIF_VERSION ; \
-    sed -i "s/- include: firewall.yml//" deployment/ubuntu16/roles/ubuntu16/tasks/main.yml ; \
-    sed -i "s/  tags: firewall//" deployment/ubuntu16/roles/ubuntu16/tasks/main.yml ; \
+    sed -i "s/- include: firewall.yml//" ubuntu16/roles/ubuntu16/tasks/main.yml ; \
+    sed -i "s/  tags: firewall//" ubuntu16/roles/ubuntu16/tasks/main.yml ; \
     mkdir -p /etc/resolvconf/resolv.conf.d ; \
-    # Override for Docker - don't need anything related to systemd; \
-    echo "---" > deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "- name: copy supervisord configs" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "  copy: src=\"{{ item }}\" dest=/etc/cif/ mode=0660 owner=\"{{ app_user }}\" group=\"{{ app_user }}\"" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "  with_items:" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "    - cif-router.conf" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "    - cif-httpd.conf" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "    - csirtg-smrt.conf" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "- name: systemd env file" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "  template: src=cif.env.j2 dest=/etc/cif.env mode=0660 owner=\"{{ app_user }}\" group=\"{{ app_user }}\" " >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "  tags: configuration" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "- name: copy /etc/defaults/cif" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
-    echo "  template: src=defaults.j2 dest=/etc/default/cif mode=0660 owner=\"{{ app_user }}\" group=\"{{ app_user }}\"" >> deployment/ubuntu16/roles/ubuntu16/tasks/services.yml; \
     # Override for Docker - don't need anything related to systemd/on-startup
-    echo "---" > deployment/ubuntu16/localhost.yml; \
-    echo "- name: Install bearded-avenger" >> deployment/ubuntu16/localhost.yml; \
-    echo "  hosts: localhost" >> deployment/ubuntu16/localhost.yml; \
-    echo "  environment:" >> deployment/ubuntu16/localhost.yml; \
-    echo "    LANG: C" >> deployment/ubuntu16/localhost.yml; \
-    echo "    LC_ALL: C" >> deployment/ubuntu16/localhost.yml; \
-    echo "    LC_MESSAGES: C" >> deployment/ubuntu16/localhost.yml; \
-    echo "  become: True" >> deployment/ubuntu16/localhost.yml; \
-    echo "  roles:" >> deployment/ubuntu16/localhost.yml; \
-    echo "    - { role: ubuntu16, tags: role-ubuntu16 }" >> deployment/ubuntu16/localhost.yml; \
-    echo "    - { role: bearded-avenger, tags: role-bearded-avenger }" >> deployment/ubuntu16/localhost.yml; \
-    # We can't have a run-state while building container - exit cleanly after build!
-    sed -i "s/bash ..\/test.sh/exit 0/" deployment/ubuntu16/bootstrap.sh ; \
-    cp -f deployment/test.sh /root/test.sh ; \
+    head -n -7 ubuntu16/roles/ubuntu16/tasks/services.yml > /tmp/services.yml && mv -f /tmp/services.yml ubuntu16/roles/ubuntu16/tasks/services.yml ; \
+    head -n -8 ubuntu16/site.yml > /tmp/site.yml && mv -f /tmp/site.yml ubuntu16/site.yml ; \
+    sed -i "s/    - reload journald//" ubuntu16/roles/ubuntu16/tasks/services.yml ; \
+    sed -i "s/    - reload systemd//" ubuntu16/roles/ubuntu16/tasks/services.yml ; \
+    echo "" > ubuntu16/roles/ubuntu16/handlers/main.yml ; \
+    echo "---" > ubuntu16/localhost.yml; \
+    echo "- name: Install bearded-avenger" >> ubuntu16/localhost.yml; \
+    echo "  hosts: localhost" >> ubuntu16/localhost.yml; \
+    echo "  environment:" >> ubuntu16/localhost.yml; \
+    echo "    LANG: C" >> ubuntu16/localhost.yml; \
+    echo "    LC_ALL: C" >> ubuntu16/localhost.yml; \
+    echo "    LC_MESSAGES: C" >> ubuntu16/localhost.yml; \
+    echo "  become: True" >> ubuntu16/localhost.yml; \
+    echo "  roles:" >> ubuntu16/localhost.yml; \
+    echo "    - { role: ubuntu16, tags: role-ubuntu16 }" >> ubuntu16/localhost.yml; \
+    echo "    - { role: bearded-avenger, tags: role-bearded-avenger }" >> ubuntu16/localhost.yml; \
+    cp -f test.sh /root/test.sh ; \
     ln -s /home/cif/.cif.yml /root/.cif.yml ; \
     ln -s /home/cif/.cifrc /root/.cifrc ; \
     chmod 755 /root/test.sh ; \
     chmod 755 /entrypoint ; \
-    cd deployment/ubuntu16 && bash bootstrap.sh ; \
-    rm -Rf ../../../bearded-avenger
+    cd ubuntu16 && bash bootstrap.sh ; \
+    rm -Rf ../../bearded-avenger-deploymentkit
 
 
 # This has to be last/post volume dir work.
