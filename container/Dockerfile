@@ -4,7 +4,7 @@ LABEL docker_maintainer="Ventz Petkov <ventz@vpetkov.net>"
 
 EXPOSE 443 5000
 
-ENV CIF_VERSION 3.0.0a3
+ENV CIF_VERSION 3.0.0a5
 ENV CIF_RUNTIME_PATH /var/lib/cif
 ENV SUDO_USER root
 ENV DEBIAN_FRONTEND=noninteractive
