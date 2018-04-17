@@ -8,6 +8,7 @@ ENV CIF_VERSION 3.0.0rc2
 ENV CIF_RUNTIME_PATH /var/lib/cif
 ENV SUDO_USER root
 ENV DEBIAN_FRONTEND=noninteractive
+ENV DOCKER_BUILD=yes
 
 COPY supervisord.conf /usr/local/etc/supervisord.conf
 COPY entrypoint /
