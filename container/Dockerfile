@@ -4,7 +4,9 @@ LABEL docker_maintainer="Ventz Petkov <ventz@vpetkov.net>"
 
 EXPOSE 443 5000
 
-ENV CIF_VERSION 3.0.0b0
+ENV DOCKER_BUILD=yes
+
+ENV CIF_VERSION 3.0.0rc2
 ENV CIF_RUNTIME_PATH /var/lib/cif
 ENV SUDO_USER root
 ENV DEBIAN_FRONTEND=noninteractive
@@ -17,18 +19,13 @@ RUN echo "resolvconf resolvconf/linkify-resolvconf boolean false" | debconf-set-
 RUN apt-get update && apt-get install -y git sudo resolvconf supervisor; \
     cd /tmp && git clone https://github.com/csirtgadgets/bearded-avenger-deploymentkit
 
+RUN sudo useradd cif
+
 WORKDIR /tmp/bearded-avenger-deploymentkit
 # Override for Docker - don't need anything related to systemd; \
 RUN git checkout tags/$CIF_VERSION ; \
-    sed -i "s/- include: firewall.yml//" ubuntu16/roles/ubuntu16/tasks/main.yml ; \
-    sed -i "s/  tags: firewall//" ubuntu16/roles/ubuntu16/tasks/main.yml ; \
     mkdir -p /etc/resolvconf/resolv.conf.d ; \
     # Override for Docker - don't need anything related to systemd/on-startup
-    head -n -7 ubuntu16/roles/ubuntu16/tasks/services.yml > /tmp/services.yml && mv -f /tmp/services.yml ubuntu16/roles/ubuntu16/tasks/services.yml ; \
-    head -n -8 ubuntu16/site.yml > /tmp/site.yml && mv -f /tmp/site.yml ubuntu16/site.yml ; \
-    sed -i "s/    - reload journald//" ubuntu16/roles/ubuntu16/tasks/services.yml ; \
-    sed -i "s/    - reload systemd//" ubuntu16/roles/ubuntu16/tasks/services.yml ; \
-    echo "" > ubuntu16/roles/ubuntu16/handlers/main.yml ; \
     echo "---" > ubuntu16/localhost.yml; \
     echo "- name: Install bearded-avenger" >> ubuntu16/localhost.yml; \
     echo "  hosts: localhost" >> ubuntu16/localhost.yml; \
