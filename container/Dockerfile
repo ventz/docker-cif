@@ -4,10 +4,11 @@ LABEL docker_maintainer="Ventz Petkov <ventz@vpetkov.net>"
 
 EXPOSE 443 5000
 
-ENV CIF_VERSION 3.0.0b0
+ENV CIF_VERSION 3.0.0rc2
 ENV CIF_RUNTIME_PATH /var/lib/cif
 ENV SUDO_USER root
 ENV DEBIAN_FRONTEND=noninteractive
+ENV DOCKER_BUILD=yes
 
 COPY supervisord.conf /usr/local/etc/supervisord.conf
 COPY entrypoint /
@@ -17,11 +18,11 @@ RUN echo "resolvconf resolvconf/linkify-resolvconf boolean false" | debconf-set-
 RUN apt-get update && apt-get install -y git sudo resolvconf supervisor; \
     cd /tmp && git clone https://github.com/csirtgadgets/bearded-avenger-deploymentkit
 
+RUN sudo useradd cif
+
 WORKDIR /tmp/bearded-avenger-deploymentkit
 # Override for Docker - don't need anything related to systemd; \
 RUN git checkout tags/$CIF_VERSION ; \
-    sed -i "s/- include: firewall.yml//" ubuntu16/roles/ubuntu16/tasks/main.yml ; \
-    sed -i "s/  tags: firewall//" ubuntu16/roles/ubuntu16/tasks/main.yml ; \
     mkdir -p /etc/resolvconf/resolv.conf.d ; \
     # Override for Docker - don't need anything related to systemd/on-startup
     head -n -7 ubuntu16/roles/ubuntu16/tasks/services.yml > /tmp/services.yml && mv -f /tmp/services.yml ubuntu16/roles/ubuntu16/tasks/services.yml ; \
