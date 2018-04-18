@@ -1,4 +1,4 @@
-# Latest Version: 3.0.0b0
+# Latest Version: 3.0.0b4
 CIFv3 Ubuntu 16.04 Docker Container (Bearded Avenger)
 
 https://github.com/csirtgadgets/bearded-avenger-deploymentkit/wiki
@@ -56,10 +56,11 @@ SQLite DB:
 
 # Docker Maintainer:
 
-Ventz Petkov <ventz@vpetkov.net>
+Ventz Petkov (@ventz)
+Dylan Jacob (@dylanjacob)
 
 # COPYRIGHT AND LICENSE
 
-Copyright (C) 2017 [the CSIRT Gadgets Foundation](http://csirtgadgets.org)
+Copyright (C) 2017-2018 [the CSIRT Gadgets Foundation](http://csirtgadgets.org)
 
 See: [LICENSE](https://github.com/ventz/docker-cif/blob/master/LICENSE)
